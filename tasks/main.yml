@@ -34,7 +34,7 @@
 
 - name: copy private key
   ansible.builtin.copy:
-    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key' }}"
+    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key }}"
     dest: "/home/{{ item.name }}/.ssh/id_rsa.git"
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
