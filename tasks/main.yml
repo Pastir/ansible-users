@@ -31,3 +31,26 @@
   when: item.sudo
   tags:
     - addsudo
+
+- name: copy private key
+  ansible.builtin.copy:
+    src: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key') }}"
+    dest: "/home/{{ item.name }}/.ssh/id_rsa.git"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0400'
+  loop: "{{ user_names }}"
+  when: item.git
+  tags:
+    - private_key
+
+- name: add ssh config
+  ansible.builtin.copy:
+    dest: "/home/{{ item.name }}/.ssh/config"
+    content: |
+       Host github.com
+       HostName github.com
+       IdentityFile ~/.ssh/id_rsa.git
+       IdentitiesOnly yes
+       User git
+  when: item.git
