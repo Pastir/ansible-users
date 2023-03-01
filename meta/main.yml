@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Pastir Ivan
+  description: Roles Users
+  role_name: pastir.users
+
+  license: Apache License, Version 2.0
+
+  min_ansible_version: 2.9
+
+  galaxy_tags:
+    - add user
+    - delete user
+    - users
+    - user management
+
+dependencies: []

@@ -1,0 +1,33 @@
+---
+- name: Include tasks defined variables.
+  include_tasks: "defined/main.yml"
+
+- name: Add user
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: "{{ item.shell }}"
+    groups: "{{ item.append }}"
+    append: yes
+  loop: "{{ user_names }}"
+  tags:
+    - adduser
+
+- name: Set authorized public key
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key.pub') }}"
+  loop: "{{ user_names }}"
+  when: item.auth_key
+  tags:
+    - authorized_key
+
+- name: add user to sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ (item.name) | replace('.','') }}"
+    content: |
+      {{ item.name  }}    ALL=(ALL)       NOPASSWD: ALL
+  loop: '{{ user_names }}'
+  when: item.sudo
+  tags:
+    - addsudo

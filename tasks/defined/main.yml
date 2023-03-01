@@ -1,0 +1,6 @@
+---
+
+- name: Define path_files_directory.
+  set_fact:
+    path_files_directory: "{{ __path_files_directory }}"
+  when: path_files_directory is not defined
