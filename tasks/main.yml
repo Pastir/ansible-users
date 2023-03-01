@@ -27,14 +27,14 @@
     dest: "/etc/sudoers.d/{{ (item.name) | replace('.','') }}"
     content: |
       {{ item.name  }}    ALL=(ALL)       NOPASSWD: ALL
-  loop: '{{ user_names }}'
+  loop: "{{ user_names }}"
   when: item.sudo
   tags:
     - addsudo
 
 - name: copy private key
   ansible.builtin.copy:
-    src: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key') }}"
+    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key' }}"
     dest: "/home/{{ item.name }}/.ssh/id_rsa.git"
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
