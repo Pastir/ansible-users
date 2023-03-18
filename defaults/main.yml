@@ -1,7 +1,6 @@
 ---
 # structure directory path_files_directory:
 # pair_key - [ pair_key/account ], directory to store the key pair
-# authorized_key - [authorized_key/account ], directory to store the public key
-__path_files_directory: /etc/ansible/files/
+__path_files_directory: /etc/ansible/files/pair_key
 
 

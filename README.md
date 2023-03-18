@@ -14,8 +14,11 @@
   vars:
     path_files_directory: "/path_to_dir/authorized_key"
     user_names:
-   - {'name': user_name1, 'sudo': true, 'auth_key': true, 'key_pair': false, 'append': '', 'shell': '/bin/bash' }
-   - {'name': user_name2, 'sudo': false, 'auth_key': true, 'key_pair': false, 'append': '', 'shell': '/bin/bash' }
+      - {'name': i.pastir,  'sudo': true, 'auth_key': true, 'key_pair': false, 'append': '', 'shell': '/bin/bash', 'git': false }
+      - {'name': a.sergeev, 'sudo': true, 'auth_key': true, 'key_pair': false, 'append': '', 'shell': '/bin/bash', 'git': false }
+      - {'name': mobstra, 'sudo': false, 'auth_key': true, 'key_pair': false, 'append': '', 'shell': '/bin/bash', 'git': true }
+      
+
   
   roles:
     - pastir.users

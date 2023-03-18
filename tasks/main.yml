@@ -8,7 +8,7 @@
     shell: "{{ item.shell }}"
     groups: "{{ item.append }}"
     append: yes
-  loop: "{{ user_names }}"
+  loop: "{{ list_users }}"
   tags:
     - adduser
 
@@ -16,8 +16,8 @@
   ansible.posix.authorized_key:
     user: "{{ item.name }}"
     state: present
-    key: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key.pub') }}"
-  loop: "{{ user_names }}"
+    key: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.pub') }}"
+  loop: "{{ list_users }}"
   when: item.auth_key
   tags:
     - authorized_key
@@ -27,19 +27,19 @@
     dest: "/etc/sudoers.d/{{ (item.name) | replace('.','') }}"
     content: |
       {{ item.name  }}    ALL=(ALL)       NOPASSWD: ALL
-  loop: "{{ user_names }}"
+  loop: "{{ list_users }}"
   when: item.sudo
   tags:
     - addsudo
 
 - name: copy private key
   ansible.builtin.copy:
-    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.key"
+    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}"
     dest: "/home/{{ item.name }}/.ssh/id_rsa.git"
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
     mode: '0400'
-  loop: "{{ user_names }}"
+  loop: "{{ list_users }}"
   when: item.git
   tags:
     - private_key
@@ -56,5 +56,5 @@
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
     mode: '0400'
-  loop: "{{ user_names }}"
+  loop: "{{ list_users }}"
   when: item.git
