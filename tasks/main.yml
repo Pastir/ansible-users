@@ -8,7 +8,7 @@
     shell: "{{ item.shell }}"
     groups: "{{ item.append }}"
     append: yes
-  loop: "{{ list_users }}"
+  loop: "{{ ssh_users }}"
   tags:
     - adduser
 
@@ -17,20 +17,44 @@
     user: "{{ item.name }}"
     state: present
     key: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.pub') }}"
-  loop: "{{ list_users }}"
+  loop: "{{ ssh_users }}"
   when: item.auth_key
   tags:
     - authorized_key
 
 - name: add user to sudo
-  ansible.builtin.copy:
-    dest: "/etc/sudoers.d/{{ (item.name) | replace('.','') }}"
-    content: |
-      {{ item.name  }}    ALL=(ALL)       NOPASSWD: ALL
-  loop: "{{ list_users }}"
+  community.general.sudoers:
+    name: "{{ item.name | replace('.','') }}"
+    state: present
+    user: "{{ item.name }}"
+    commands: ALL
+    nopassword: true
   when: item.sudo
+  loop: "{{ ssh_users }}"
+
+- name: copy private key
+  ansible.builtin.copy:
+    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}"
+    dest: "{{ item.path_key_pair }}/id_rsa"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0400'
+  loop: "{{ ssh_users }}"
+  when: item.path_key_pair is defined
   tags:
-    - addsudo
+    - pair_key
+
+- name: copy public key
+  ansible.builtin.copy:
+    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.pub"
+    dest: "{{ item.path_key_pair }}/id_rsa.pub"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0400'
+  loop: "{{ ssh_users }}"
+  when: item.path_key_pair is defined
+  tags:
+    - pair_key
 
 - name: copy private key
   ansible.builtin.copy:
@@ -39,7 +63,7 @@
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
     mode: '0400'
-  loop: "{{ list_users }}"
+  loop: "{{ ssh_users }}"
   when: item.git
   tags:
     - private_key
@@ -56,5 +80,5 @@
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
     mode: '0400'
-  loop: "{{ list_users }}"
+  loop: "{{ ssh_users }}"
   when: item.git
