@@ -1,7 +1,5 @@
 ---
-# structure directory path_files_directory:
-# pair_key - [ pair_key/account ], directory to store the key pair
-__path_files_directory: /etc/ansible/files/pair_key
+__ssh_directory_users_keys: /etc/ansible/files/pair_key
 __ssh_users: []
 
 

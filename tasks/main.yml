@@ -4,7 +4,7 @@
 
 - name: Add user
   ansible.builtin.user:
-    name: "{{ item.name }}"
+    name: "{{ item.user }}"
     shell: "{{ item.shell }}"
     groups: "{{ item.append }}"
     append: yes
@@ -14,9 +14,9 @@
 
 - name: Set authorized public key
   ansible.posix.authorized_key:
-    user: "{{ item.name }}"
+    user: "{{ item.user }}"
     state: present
-    key: "{{ lookup('file', '{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.pub') }}"
+    key: "{{ lookup('file', '{{ ssh_directory_users_keys }}/{{ item.user }}/{{ item.user }}.pub') }}"
   loop: "{{ ssh_users }}"
   when: item.auth_key
   tags:
@@ -24,9 +24,9 @@
 
 - name: add user to sudo
   community.general.sudoers:
-    name: "{{ item.name | replace('.','') }}"
+    name: "{{ item.user | replace('.','') }}"
     state: present
-    user: "{{ item.name }}"
+    user: "{{ item.user }}"
     commands: ALL
     nopassword: true
   when: item.sudo
@@ -34,10 +34,10 @@
 
 - name: copy private key
   ansible.builtin.copy:
-    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}"
+    src: "{{ ssh_directory_users_keys }}/{{ item.user }}/{{ item.user }}"
     dest: "{{ item.path_key_pair }}/id_rsa"
-    owner: "{{ item.name }}"
-    group: "{{ item.name }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
     mode: '0400'
   loop: "{{ ssh_users }}"
   when: item.path_key_pair is defined
@@ -46,10 +46,10 @@
 
 - name: copy public key
   ansible.builtin.copy:
-    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}.pub"
+    src: "{{ ssh_directory_users_keys }}/{{ item.user }}/{{ item.user }}.pub"
     dest: "{{ item.path_key_pair }}/id_rsa.pub"
-    owner: "{{ item.name }}"
-    group: "{{ item.name }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
     mode: '0400'
   loop: "{{ ssh_users }}"
   when: item.path_key_pair is defined
@@ -58,10 +58,10 @@
 
 - name: copy private key
   ansible.builtin.copy:
-    src: "{{ path_files_directory }}/{{ item.name }}/{{ item.name }}"
-    dest: "/home/{{ item.name }}/.ssh/id_rsa.git"
-    owner: "{{ item.name }}"
-    group: "{{ item.name }}"
+    src: "{{ ssh_directory_users_keys }}/{{ item.user }}/{{ item.user }}"
+    dest: "/home/{{ item.user }}/.ssh/id_rsa.git"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
     mode: '0400'
   loop: "{{ ssh_users }}"
   when: item.git
@@ -70,15 +70,15 @@
 
 - name: add ssh config
   ansible.builtin.copy:
-    dest: "/home/{{ item.name }}/.ssh/config"
+    dest: "/home/{{ item.user }}/.ssh/config"
     content: |
        Host github.com
        HostName github.com
        IdentityFile ~/.ssh/id_rsa.git
        IdentitiesOnly yes
        User git
-    owner: "{{ item.name }}"
-    group: "{{ item.name }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
     mode: '0400'
   loop: "{{ ssh_users }}"
   when: item.git
